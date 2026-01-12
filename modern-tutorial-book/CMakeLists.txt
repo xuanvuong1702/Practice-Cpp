@@ -1,26 +1,26 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(modern_cpp_book
-    LANGUAGES CXX
-)
+project(modern_cpp_book LANGUAGES CXX C)
 
+# Cấu hình C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Export compile commands
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#include(cmake/common.cmake)
 
-# Auto build all cpp files under chapters/
-file(GLOB_RECURSE CPP_SOURCES
-    CONFIGURE_DEPENDS
-    chapters/*.cpp
+# Tạo thư viện common từ code trong include/
+add_library(common_lib STATIC
+    include/CompatibilityWithC.c
+    # Thêm các file .cpp/.c khác trong include/ nếu có
 )
 
-foreach(source_file ${CPP_SOURCES})
-    get_filename_component(target_name ${source_file} NAME_WE)
+# Set include directory cho library
+target_include_directories(common_lib PUBLIC 
+    ${PROJECT_SOURCE_DIR}/include
+)
 
-    add_executable(${target_name} ${source_file})
-    target_compile_options(${target_name} PRIVATE ${PROJECT_WARNINGS})
-endforeach()
+# Add chapters
+add_subdirectory(chapters)
