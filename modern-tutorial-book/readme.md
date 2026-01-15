@@ -1,143 +1,134 @@
-````markdown
-## 🛠️ Hướng dẫn Build Project (Windows – CMake + Ninja + MSVC)
+# Modern C++ Learning Project
 
-### 1. Yêu cầu môi trường
+📚 **Based on**: [Modern C++ Tutorial: C++11/14/17/20 On the Fly](https://github.com/changkun/modern-cpp-tutorial)
 
-Đảm bảo máy đã cài các công cụ sau:
+A CMake project structure for learning Modern C++ features by following along with the book.
 
-- Windows 10/11  
-- Visual Studio Community 2022  
-  - Chọn workload: **Desktop development with C++**
-- CMake (>= 3.20)
-- Ninja
-- VS Code (khuyến nghị)
-  - Extensions:
-    - CMake Tools
-    - C/C++
+## 📁 Project Structure
 
-Kiểm tra nhanh trong terminal:
-
-```bash
-cmake --version
-ninja --version
-cl
-````
-
----
-
-### 2. Cấu trúc thư mục project
-
-```text
-modern-tutorial-book/
-├── .vscode/
-│   └── settings.json
-├── build/                # Thư mục build (sinh ra sau)
-├── chapters/
-│   └── chapter01/
-│       ├── sample.cpp
-│       └── DeprecateFeature.cpp
-├── include/
+```
+modern-cpp-learning/
+├── CMakeLists.txt              # Root CMake configuration
 ├── cmake/
-├── CMakeLists.txt
-└── .clang-format
+│   └── CompilerSettings.cmake  # Cross-platform compiler settings
+├── common/                     # Shared utilities
+│   ├── include/common/
+│   │   └── utils.hpp
+│   └── src/
+├── chapter01/                  # Chapter 01: Towards Modern C++
+├── source/                     #source code
+    └── include
+    └── src 
 ```
 
----
+## 🛠️ Build Instructions
 
-### 3. Cấu hình VS Code (khuyến nghị)
+### Prerequisites
 
-File `.vscode/settings.json`:
+- CMake 3.16 or higher
+- C++20 compatible compiler:
+  - **macOS**: Xcode 12+ or Clang 10+
+  - **Windows**: Visual Studio 2019+ or MSVC 19.29+
+  - **Linux**: GCC 10+ or Clang 10+
 
-```json
-{
-  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "cmake.configureOnOpen": true,
-  "editor.formatOnSave": true
-}
-```
-
----
-
-### 4. Cấu hình project bằng CMake
-
-Tại thư mục root của project, chạy:
+### macOS / Linux
 
 ```bash
-cmake -B build -G Ninja ^
-  -DCMAKE_BUILD_TYPE=Debug ^
-  -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+# Create build directory
+mkdir build && cd build
+
+# Configure (Release build)
+cmake .. -DCMAKE_BUILD_TYPE=Release
+
+# Build all chapters
+cmake --build .
+
+# Or build specific chapter
+cmake --build . --target ch01_modern_preview
 ```
 
-Kết quả:
+### Windows (Visual Studio)
 
-* Tạo thư mục `build/`
-* Sinh file `compile_commands.json`
-* Chuẩn bị file build cho Ninja
+```powershell
+# Create build directory
+mkdir build
+cd build
 
----
+# Configure (generates Visual Studio solution)
+cmake ..
 
-### 5. Build project
+# Build using Visual Studio or command line
+cmake --build . --config Release
+
+# Or open the .sln file in Visual Studio
+```
+
+### Windows (MinGW/MSYS2)
 
 ```bash
-cmake --build build --config Debug
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build .
 ```
 
-Hoặc build toàn bộ target:
+## 🚀 Running Examples
+
+After building, executables are located in `build/bin/`:
 
 ```bash
-cmake --build build --target all
+# Run examples
+./build/bin/ch01_modern_preview
+./build/bin/ch02_type_inference
+./build/bin/ch03_lambda
+# ... etc
 ```
 
-Sau khi build thành công, file executable sẽ nằm tại:
+## 📖 Chapter Contents
 
-```text
-build/sample.exe
-```
+| Chapter | Topic | Executables |
+|---------|-------|-------------|
+| 01 | Towards Modern C++ | `ch01_c_cpp_interop`, `ch01_modern_preview` |
+| 02 | Language Usability | `ch02_constants`, `ch02_type_inference`, `ch02_variables_init`, `ch02_control_flow`, `ch02_templates`, `ch02_oop_enhancements` |
+| 03 | Runtime Enhancements | `ch03_lambda`, `ch03_function_wrapper`, `ch03_move_semantics`, `ch03_perfect_forwarding` |
+| 04 | Containers | `ch04_array_forward_list`, `ch04_unordered_containers`, `ch04_tuples` |
+| 05 | Smart Pointers | `ch05_smart_pointers` |
+| 06 | Regular Expressions | `ch06_regex` |
+| 07 | Concurrency | `ch07_threads_mutex`, `ch07_future_async`, `ch07_condition_variable`, `ch07_atomic_memory_model` |
+| 08 | File System | `ch08_filesystem` |
+| 09 | Minor Features | `ch09_minor_features` |
+| 10 | C++20 Preview | `ch10_cpp20_features` |
 
----
+## 🎯 How to Use
 
-### 6. Chạy chương trình
+1. **Read a chapter** from the book
+2. **Find the corresponding example** in `chapterXX/src/`
+3. **Add your code** following the book's examples
+4. **Build and run** to test your understanding
+5. **Experiment** with variations!
+
+## 💡 Tips
+
+- Use `PRINT_VAR(x)` macro to print variable name and value
+- Use `PRINT_VAR_TYPE(x)` to see the deduced type
+- Use `mcpp::print_section()` and `mcpp::print_subsection()` for organized output
+- Use `mcpp::ScopedTimer` to measure execution time
+
+## 🔧 Customization
+
+### Build Only Specific Chapters
 
 ```bash
-.\build\sample.exe
+cmake .. -DBUILD_CHAPTER01=ON -DBUILD_CHAPTER02=ON -DBUILD_CHAPTER03=OFF ...
 ```
 
----
+### Change C++ Standard
 
-### 7. Lưu ý quan trọng
-
-* `allclear` **không phải target hợp lệ** của Ninja
-  → sẽ báo lỗi:
-
-  ```text
-  ninja: error: unknown target 'allclear'
-  ```
-
-* Nếu muốn **clean build**, dùng:
-
-  ```bash
-  cmake --build build --target clean
-  ```
-
-  hoặc xóa thư mục `build/` rồi cấu hình lại.
-
----
-
-### 8. Build lại từ đầu (Clean Build)
-
-```bash
-rmdir /s /q build
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
+Edit `CMakeLists.txt` and change:
+```cmake
+set(CMAKE_CXX_STANDARD 20)  # Change to 17, 14, or 11
 ```
 
----
+## 📝 License
 
-### 9. Ghi chú thêm
-
-* Compiler sử dụng: MSVC (cl.exe)
-* Generator: Ninja
-* Phù hợp cho C++ hiện đại, embedded, automotive, UAV
-
-```
-```
+This project structure is for educational purposes.
+The book "Modern C++ Tutorial" is licensed under CC BY-NC-ND 4.0.
