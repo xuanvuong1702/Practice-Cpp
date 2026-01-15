@@ -1,261 +1,258 @@
+# C Learning Project
 
-# C Book Practice Project (C + CMake)
+Dự án thực hành C theo sách "Systems Programming" - Được tổ chức theo từng chapter.
 
-## 1. Mục tiêu dự án
+## 📁 Cấu trúc dự án
 
-Dự án này được thiết kế để:
-
-- Học và thực hành ngôn ngữ **C một cách có hệ thống**
-- Bám sát cấu trúc **các chương trong sách C**
-- Tuân theo **best practices trong industry**
-- Build và run được trên **Linux và Windows**
-- Tránh over-engineering, tập trung vào **bản chất C**
-
-Dự án **không phải** là một application hoàn chỉnh, mà là một **learning project có cấu trúc chuẩn**.
-
----
-
-## 2. Tổng quan cấu trúc thư mục
-
-```text
-c-book-project/
-├── CMakeLists.txt          # CMake cấu hình chính
-├── README.md               # Tài liệu hướng dẫn (file này)
-│
-├── include/                # Header files (public interface)
-│   ├── ch01_basics/
-│   ├── ch02_functions/
-│   ├── ch03_pointers/
-│   ├── ch04_strings/
-│   ├── ch05_io/
-│   └── common/
-│
-├── src/                    # Source code (implementation)
-│   ├── ch01_basics/
-│   ├── ch02_functions/
-│   ├── ch03_pointers/
-│   ├── ch04_strings/
-│   ├── ch05_io/
-│   └── main.c
-│
-├── chapters/               # Executable theo từng chương
-│   ├── ch01.c
-│   ├── ch02.c
-│   ├── ch03.c
-│   ├── ch04.c
-│   └── ch05.c
-│
-└── build/                  # Thư mục build (auto-generated)
-````
-
----
-
-## 3. Nguyên tắc tổ chức code
-
-### 3.1 Chia theo chương của sách
-
-* Mỗi **chương trong sách** tương ứng với:
-
-  * 1 thư mục trong `include/`
-  * 1 thư mục trong `src/`
-  * 1 file chạy minh hoạ trong `chapters/`
-
-Ví dụ:
-
-* Chương 3 (Pointers & Memory):
-
-  * `include/ch03_pointers/`
-  * `src/ch03_pointers/`
-  * `chapters/ch03.c`
-
----
-
-### 3.2 Quy ước Header (`.h`)
-
-* Header chỉ chứa:
-
-  * Khai báo hàm
-  * Macro / typedef cần thiết
-* **Không viết logic trong header**
-* Luôn dùng include guard
-
-Ví dụ:
-
-```c
-#ifndef MEMORY_H
-#define MEMORY_H
-
-void demo_malloc(void);
-
-#endif
+```
+c-learning/
+├── CMakeLists.txt          # Root CMake configuration
+├── common/                 # Shared utilities
+│   ├── CMakeLists.txt
+│   ├── include/
+│   └── src/
+├── source/                 # Code học từ sách (library)
+│   ├── CMakeLists.txt
+│   ├── include/
+│   └── src/
+├── chapter_03/             # Exercises cho từng chapter
+│   └── CMakeLists.txt
+└── build/                  # Build output (gitignored)
 ```
 
 ---
 
-### 3.3 Quy ước Source (`.c`)
+## 🐧 Build trên Linux/macOS
 
-* Mỗi `.c` phải include **header của chính nó**
-* Logic cài đặt đặt hoàn toàn trong `.c`
-* Không include file `.c` khác
-
-Ví dụ:
-
-```c
-#include "ch03_pointers/memory.h"
-#include <stdlib.h>
-#include <stdio.h>
-
-void demo_malloc(void) {
-    int *p = malloc(sizeof(int));
-    if (!p) {
-        return;
-    }
-
-    *p = 42;
-    printf("value = %d\n", *p);
-    free(p);
-}
-```
-
----
-
-### 3.4 File `chapters/chXX.c`
-
-* Mỗi file trong `chapters/` là **entry point** cho 1 chương
-* Chỉ gọi các hàm demo của chương đó
-* Không chứa logic phức tạp
-
-Ví dụ:
-
-```c
-#include "ch03_pointers/memory.h"
-
-int main(void) {
-    demo_malloc();
-    return 0;
-}
-```
-
----
-
-## 4. Cách thêm code cho chương mới
-
-Giả sử thêm **Chương 6**:
-
-1. Tạo thư mục:
-
-```text
-include/ch06_error/
-src/ch06_error/
-```
-
-2. Thêm header:
-
-```text
-include/ch06_error/error.h
-```
-
-3. Thêm source:
-
-```text
-src/ch06_error/error.c
-```
-
-4. Thêm file chạy:
-
-```text
-chapters/ch06.c
-```
-
-5. Thêm `ch06` vào danh sách executable trong `CMakeLists.txt`
-
----
-
-## 5. Cấu trúc CMake
-
-### 5.1 Vai trò của CMake
-
-* Quản lý build cho toàn bộ project
-* Tạo executable cho **từng chương**
-* Hoạt động trên:
-
-  * Linux (gcc / clang)
-  * Windows (MSVC / MinGW / Ninja)
-
----
-
-### 5.2 Build thư viện chung
-
-Toàn bộ code trong `src/` được build thành một static library:
-
-* Mỗi chương link vào cùng một library
-* Tránh duplicate code
-* Phản ánh đúng cách tổ chức project trong industry
-
----
-
-## 6. Build & Run
-
-### 6.1 Build project
-
-Từ thư mục gốc:
+### Cài đặt
 
 ```bash
-cmake -S . -B build
-cmake --build build
+# Ubuntu/Debian
+sudo apt update
+sudo apt install build-essential cmake
+
+# macOS
+xcode-select --install
+brew install cmake
 ```
 
----
-
-### 6.2 Chạy từng chương
-
-Linux / macOS:
+### Build và chạy
 
 ```bash
-./build/ch03
-```
+cd c-learning
+mkdir -p build && cd build
+cmake ..
+make -j$(nproc)
 
-Windows:
-
-```bat
-build\ch03.exe
+# Chạy
+./bin/ch03_01_hello_world
 ```
 
 ---
 
-### 6.3 Clean build
+## 🪟 Build trên Windows
 
-Xoá toàn bộ file build:
+### Cách 1: MinGW-w64 (Khuyên dùng - giống Linux nhất)
+
+#### Cài đặt
+
+1. **Cài MSYS2** (bao gồm MinGW-w64):
+   - Tải từ: https://www.msys2.org/
+   - Chạy installer, cài vào `C:\msys64`
+
+2. **Mở MSYS2 UCRT64** từ Start Menu, chạy:
+   ```bash
+   pacman -Syu
+   pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make
+   ```
+
+3. **Thêm vào PATH** (System Environment Variables):
+   ```
+   C:\msys64\ucrt64\bin
+   ```
+
+4. **Khởi động lại** terminal/PowerShell
+
+#### Build
+
+```powershell
+cd c-learning
+mkdir build
+cd build
+cmake -G "MinGW Makefiles" ..
+mingw32-make
+
+# Chạy
+.\bin\ch03_01_hello_world.exe
+```
+
+---
+
+### Cách 2: Visual Studio
+
+#### Cài đặt
+
+1. Tải **Visual Studio 2022 Community** (miễn phí):
+   https://visualstudio.microsoft.com/
+
+2. Trong installer, chọn:
+   - ✅ **Desktop development with C++**
+   - ✅ **C++ CMake tools for Windows**
+
+#### Build bằng Command Line
+
+```powershell
+# Mở "Developer PowerShell for VS 2022" từ Start Menu
+cd c-learning
+mkdir build
+cd build
+cmake ..
+cmake --build .
+
+# Chạy
+.\bin\Debug\ch03_01_hello_world.exe
+```
+
+#### Build bằng Visual Studio IDE
+
+1. Mở Visual Studio
+2. **File → Open → CMake...** → chọn thư mục `c-learning`
+3. Chờ CMake configure xong
+4. **Build → Build All** (hoặc Ctrl+Shift+B)
+5. Chọn target và nhấn F5 để chạy
+
+---
+
+### Cách 3: WSL (Windows Subsystem for Linux)
+
+Chạy Linux thật trong Windows - không cần config gì thêm.
+
+#### Cài đặt
+
+```powershell
+# PowerShell (Admin)
+wsl --install
+# Khởi động lại máy, setup Ubuntu user/password
+```
+
+#### Build
 
 ```bash
-rm -rf build
+# Trong WSL terminal
+sudo apt update
+sudo apt install build-essential cmake
+
+cd /mnt/c/Users/YourName/c-learning
+mkdir -p build && cd build
+cmake ..
+make
+
+./bin/ch03_01_hello_world
 ```
 
 ---
 
-## 7. Compiler & tiêu chuẩn
+## 🛠️ Tổng hợp lệnh build
 
-* Ngôn ngữ: **C99**
-* Compiler warnings:
-
-  * `-Wall`
-  * `-Wextra`
-  * `-Wpedantic`
-* Không dùng compiler extension đặc thù
-
-Mục tiêu là viết code **portable, predictable, đúng chuẩn C**.
+| Hệ điều hành | Generator | Lệnh build |
+|--------------|-----------|------------|
+| Linux/macOS | Make | `cmake .. && make` |
+| Windows MinGW | MinGW Makefiles | `cmake -G "MinGW Makefiles" .. && mingw32-make` |
+| Windows MSVC | Visual Studio | `cmake .. && cmake --build .` |
+| Windows Ninja | Ninja | `cmake -G Ninja .. && ninja` |
 
 ---
 
-## 8. Định hướng mở rộng
+## 📝 Thêm Exercise Mới
 
-Sau khi học xong sách, cấu trúc này có thể được mở rộng để:
+1. Tạo file `.c` trong thư mục chapter:
+   ```
+   chapter_03/10_my_exercise.c
+   ```
 
-* Viết CLI tool
-* Viết system utility
-* Viết embedded host tool
-* Tái sử dụng module sang project khác
+2. Thêm vào `chapter_03/CMakeLists.txt`:
+   ```cmake
+   set(CHAPTER03_EXERCISES
+       # ...
+       10_my_exercise
+   )
+   ```
 
-Chỉ cần thay `chapters/` bằng `app/`, phần còn lại giữ nguyên.
+3. Rebuild:
+   ```bash
+   # Linux/macOS
+   cd build && make
+   
+   # Windows MinGW
+   cd build && mingw32-make
+   
+   # Windows MSVC
+   cd build && cmake --build .
+   ```
 
 ---
+
+## 🐛 Debug
+
+### Linux - GDB
+```bash
+gdb ./bin/ch03_01_hello_world
+(gdb) break main
+(gdb) run
+(gdb) next
+(gdb) print var
+(gdb) quit
+```
+
+### Windows - Visual Studio
+1. Mở project trong VS
+2. Đặt breakpoint (click vào lề trái)
+3. Nhấn F5 để debug
+
+### Windows - GDB (MinGW)
+```powershell
+gdb .\bin\ch03_01_hello_world.exe
+```
+
+---
+
+## 🧹 Clean Build
+
+```bash
+# Linux/macOS
+rm -rf build/*
+
+# Windows PowerShell
+Remove-Item -Recurse -Force build\*
+
+# Hoặc đơn giản xóa thư mục build và tạo lại
+```
+
+---
+
+## ⚠️ Lưu ý Windows
+
+1. **Line endings**: Git có thể đổi `LF` thành `CRLF`. Thêm vào `.gitattributes`:
+   ```
+   * text=auto
+   *.c text eol=lf
+   *.h text eol=lf
+   ```
+
+2. **Path quá dài**: Nếu gặp lỗi path, bật long paths:
+   ```powershell
+   # PowerShell (Admin)
+   git config --system core.longpaths true
+   ```
+
+3. **Antivirus**: Có thể chậm khi build. Thêm thư mục project vào exclusion list.
+
+---
+
+## 📖 Tài liệu tham khảo
+
+- [CMake Documentation](https://cmake.org/documentation/)
+- [MSYS2 Packages](https://packages.msys2.org/)
+- [Visual Studio C++ Docs](https://docs.microsoft.com/en-us/cpp/)
+
+Happy coding! 🎉
